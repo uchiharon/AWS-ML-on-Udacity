@@ -122,7 +122,13 @@ class Binomial(Distribution):
         #
         #       Hint: You can use the calculate_mean() and calculate_stdev() methods
         #           defined previously.
-        pass
+        
+        self.size = len(self.data)
+        self.prob = 1.0 * sum(self.data) / self.size
+        self.mean = self.calculate_mean()
+        self.stdev = self.calculate_stdev()
+
+
         
     def plot_bar(self):
         """Function to output a histogram of the instance variable data using 
@@ -146,7 +152,11 @@ class Binomial(Distribution):
         #       1 on the x-axis and 20 on the y-axis
         
         #       Make sure to label the chart with a title, x-axis label and y-axis label
-        pass        
+        plt.bar(self.data)
+        plt.title('Bar Plot of Binominal Distribution')
+        plt.xlabel('value')
+        plt.ylabel('count')
+        plt.show()
         
     def pdf(self, k):
         """Probability density function calculator for the gaussian distribution.
@@ -167,7 +177,7 @@ class Binomial(Distribution):
         #   For example, if you flip a coin n = 60 times, with p = .5,
         #   what's the likelihood that the coin lands on heads 40 out of 60 times?
         
-        pass        
+        return self.pdf(k)   
 
     def plot_bar_pdf(self):
 
@@ -192,6 +202,30 @@ class Binomial(Distribution):
 
         #   This method should also return the x and y values used to make the chart
         #   The x and y values should be stored in separate lists
+        interval = 1 / self.size
+        x = []
+        y = []
+		
+		# calculate the x values to visualize
+        for i in range(self.size):
+            tmp = 0 + interval*i
+            x.append(tmp)
+            y.append(self.pdf(tmp))
+
+
+		# make the plots
+        fig, axes = plt.subplots(2,sharex=True)
+        fig.subplots_adjust(hspace=.5)
+        axes[0].hist(self.data, density=True)
+        axes[0].set_title('Normed Histogram of Data')
+        axes[0].set_ylabel('Density')
+
+        axes[1].plot(x, y)
+        axes[1].set_title('Normal Distribution for \n Sample Mean and Sample Standard Deviation')
+        axes[0].set_ylabel('Density')
+        plt.show()
+
+        return x, y
                 
     def __add__(self, other):
         
@@ -205,10 +239,7 @@ class Binomial(Distribution):
             
         """
         
-        try:
-            assert self.p == other.p, 'p values are not equal'
-        except AssertionError as error:
-            raise
+        
         
         # TODO: Define addition for two binomial distributions. Assume that the
         # p values of the two distributions are the same. The formula for 
@@ -224,7 +255,18 @@ class Binomial(Distribution):
         #   When adding two binomial distributions, the p value remains the same
         #   The new n value is the sum of the n values of the two distributions.
                 
-        pass
+        try:
+            assert self.p == other.p 
+            new_binomial_distribution = Binomial()
+            new_binomial_distribution.prob = self.prob
+            new_binomial_distribution.size = self.size + other.size
+            new_binomial_distribution.mean = new_binomial_distribution.calculate_mean()
+            new_binomial_distribution.stdev = new_binomial_distribution.calculate_stdev()
+
+        except AssertionError as error:
+            print('p values are not equal')
+
+            
         
         
     def __repr__(self):
