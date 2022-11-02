@@ -1,7 +1,7 @@
 from importlib.metadata import distribution
 import math
 import matplotlib.pyplot as plt
-from .distributions.Generaldistribution import Distribution
+from distributions.Generaldistribution import Distribution
 
 class Binomial(Distribution):
     """ Binomial distribution class for calculating and 
@@ -49,8 +49,8 @@ class Binomial(Distribution):
         #               The init function can get access to these methods via the self
         #               variable.   
         Distribution.__init__(self, mu=0, sigma=1) 
-        self.prob = prob
-        self.size = size
+        self.p = prob
+        self.n = size
               
     
     def calculate_mean(self):
@@ -68,7 +68,7 @@ class Binomial(Distribution):
         # TODO: calculate the mean of the Binomial distribution. Store the mean
         #       via the self variable and also return the new mean value
                 
-        self.mean = self.prob * self.size
+        self.mean = self.p * self.n
         return self.mean 
 
 
@@ -88,7 +88,7 @@ class Binomial(Distribution):
         # TODO: calculate the standard deviation of the Binomial distribution. Store
         #       the result in the self standard deviation attribute. Return the value
         #       of the standard deviation.
-        return math.sqrt(self.size * self.prob * (1 - self.prob))
+        return math.sqrt(self.n * self.p * (1 - self.p))
         
         
         
@@ -123,10 +123,11 @@ class Binomial(Distribution):
         #       Hint: You can use the calculate_mean() and calculate_stdev() methods
         #           defined previously.
         
-        self.size = len(self.data)
-        self.prob = 1.0 * sum(self.data) / self.size
+        self.n = len(self.data)
+        self.p = 1.0 * sum(self.data) / self.n
         self.mean = self.calculate_mean()
         self.stdev = self.calculate_stdev()
+        return self.p, self.n
 
 
         
@@ -177,7 +178,10 @@ class Binomial(Distribution):
         #   For example, if you flip a coin n = 60 times, with p = .5,
         #   what's the likelihood that the coin lands on heads 40 out of 60 times?
         
-        return self.pdf(k)   
+        a = math.factorial(self.n) / (math.factorial(k) * (math.factorial(self.n - k)))
+        b = (self.p ** k) * (1 - self.p) ** (self.n - k)
+        
+        return a * b  
 
     def plot_bar_pdf(self):
 
@@ -202,12 +206,12 @@ class Binomial(Distribution):
 
         #   This method should also return the x and y values used to make the chart
         #   The x and y values should be stored in separate lists
-        interval = 1 / self.size
+        interval = 1 / self.n
         x = []
         y = []
 		
 		# calculate the x values to visualize
-        for i in range(self.size):
+        for i in range(self.n):
             tmp = 0 + interval*i
             x.append(tmp)
             y.append(self.pdf(tmp))
@@ -256,15 +260,16 @@ class Binomial(Distribution):
         #   The new n value is the sum of the n values of the two distributions.
                 
         try:
-            assert self.p == other.p 
-            new_binomial_distribution = Binomial()
-            new_binomial_distribution.prob = self.prob
-            new_binomial_distribution.size = self.size + other.size
-            new_binomial_distribution.mean = new_binomial_distribution.calculate_mean()
-            new_binomial_distribution.stdev = new_binomial_distribution.calculate_stdev()
-
+            assert self.p == other.p, 'p values are not equal'
         except AssertionError as error:
-            print('p values are not equal')
+            raise
+        new_binomial_distribution = Binomial()
+        new_binomial_distribution.p = self.p
+        new_binomial_distribution.n = self.n + other.n
+        new_binomial_distribution.mean = new_binomial_distribution.calculate_mean()
+        new_binomial_distribution.stdev = new_binomial_distribution.calculate_stdev()
+
+        return new_binomial_distribution
 
             
         
@@ -287,4 +292,4 @@ class Binomial(Distribution):
         #       with the values replaced by whatever the actual distributions values are
         #       The method should return a string in the expected format
     
-        return 'mean {}, starndard deviation {}, p {}, n {}'.format(self.mean, self.stdev,self.prob,self.size)
+        return 'mean {}, starndard deviation {}, p {}, n {}'.format(self.mean, self.stdev,self.p,self.n)
